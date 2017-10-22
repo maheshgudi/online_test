@@ -73,6 +73,18 @@ string_check_type = (
     ("exact", "Case Sensitive"),
     )
 
+operator_type = (
+    ("==", "=="),
+    ("!=", "!="),
+    (">", ">"),
+    ("<", "<"),
+    (">=", ">="),
+    ("<=", "<="),
+    )
+
+
+
+
 attempts = [(i, i) for i in range(1, 6)]
 attempts.append((-1, 'Infinite'))
 days_between_attempts = [(j, j) for j in range(401)]
@@ -1510,15 +1522,27 @@ class TestCase(models.Model):
 
 
 class StandardTestCase(TestCase):
-    test_case = models.TextField()
+    imports =  models.TextField(blank=True)
+    function_name = models.CharField(default="abc", max_length=255)
+    arguments = models.CharField(default="1,2", max_length=255)
+
+    arguments_datatype = models.CharField(default="int, int", max_length=255)
+    operator = models.CharField(default="==", choices=operator_type,
+                                max_length=20
+                                )
+    expected_output = models.CharField(default="3", max_length=255)
     weight = models.FloatField(default=1.0)
-    test_case_args = models.TextField(blank=True)
 
     def get_field_value(self):
         return {"test_case_type": "standardtestcase",
-                "test_case": self.test_case,
-                "weight": self.weight,
-                "test_case_args": self.test_case_args}
+                "imports": self.imports,
+                "function_name": self.function_name,
+                "arguments": self.arguments,
+                "arguments_datatype": self.arguments_datatype,
+                "operator": self.operator,
+                "expected_output": self.expected_output,
+                "weight": self.weight
+                }
 
     def __str__(self):
         return u'Standard TestCase | Test Case: {0}'.format(self.test_case)

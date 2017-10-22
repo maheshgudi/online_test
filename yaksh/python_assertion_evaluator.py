@@ -25,7 +25,11 @@ class PythonAssertionEvaluator(BaseEvaluator):
         self.partial_grading = metadata.get('partial_grading')
 
         # Set test case data values
-        self.test_case = test_case_data.get('test_case')
+        self.imports = test_case_data.get("imports")
+        self.function_name = test_case_data.get("function_name")
+        self.args = test_case_data.get("arguments")
+        self.operator = test_case_data.get("operator")
+        self.expected_output = test_case_data.get("expected_output")
         self.weight = test_case_data.get('weight')
 
     def teardown(self):
