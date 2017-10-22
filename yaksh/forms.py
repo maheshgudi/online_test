@@ -29,6 +29,7 @@ languages = (
     ("cpp", "C++ Language"),
     ("java", "Java Language"),
     ("scilab", "Scilab"),
+    ("r", "R"),
     )
 
 question_types = (

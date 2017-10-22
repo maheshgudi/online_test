@@ -43,4 +43,7 @@ code_evaluators = {
     "scilab": {"standardtestcase": "yaksh.scilab_code_evaluator.ScilabCodeEvaluator",
                "hooktestcase": "yaksh.hook_evaluator.HookEvaluator"
                },
+    "r": {"stdiobasedtestcase": "yaksh.r_stdio_evaluator.RStdIOEvaluator",
+               "hooktestcase": "yaksh.hook_evaluator.HookEvaluator"
+               },
 }

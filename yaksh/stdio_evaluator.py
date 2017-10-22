@@ -22,6 +22,7 @@ class StdIOEvaluator(BaseEvaluator):
                 user_output_bytes, output_err_bytes = proc.communicate()
             user_output = user_output_bytes.decode('utf-8')
             output_err = output_err_bytes.decode('utf-8')
+            print("error", output_err)
         except TimeoutException:
             os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
             raise
