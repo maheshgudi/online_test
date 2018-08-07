@@ -2877,7 +2877,7 @@ def get_user_data(request, course_id, student_id):
 
 @login_required
 @email_verified
-def download_course(request, course_id):
+def download_course(request, course_id, mode="offline"):
     user = request.user
     course = get_object_or_404(Course, pk=course_id)
     if (not course.is_creator(user) and not course.is_teacher(user) and not
@@ -2890,17 +2890,28 @@ def download_course(request, course_id):
     current_dir = os.path.dirname(__file__)
     course_name = course.name.replace(" ", "_")
 
-    # Static files required for styling in html template
-    static_files = {"js": ["bootstrap.js", "bootstrap.min.js",
-                           "jquery-1.9.1.min.js", "video.js"],
-                    "css": ["bootstrap.css", "bootstrap.min.css",
-                            "video-js.css", "offline.css"],
-                    "images": ["yaksh_banner.png"]}
-    zip_file = course.create_zip(current_dir, static_files)
-    zip_file.seek(0)
-    response = HttpResponse(content_type='application/zip')
-    response['Content-Disposition'] = 'attachment; filename={0}.zip'.format(
-                                            course_name
-                                            )
-    response.write(zip_file.read())
-    return response
+    if mode == "offline":
+        # Static files required for styling in html template
+        static_files = {"js": ["bootstrap.js", "bootstrap.min.js",
+                               "jquery-1.9.1.min.js", "video.js"],
+                        "css": ["bootstrap.css", "bootstrap.min.css",
+                                "video-js.css", "offline.css"],
+                        "images": ["yaksh_banner.png"]}
+        zip_file = course.create_zip(current_dir, static_files)
+        zip_file.seek(0)
+        response = HttpResponse(content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename={0}.zip'\
+                                            .format(course_name)
+        response.write(zip_file.read())
+        return response
+    elif mode == "yaml":
+        zip_file = course.create_zip(current_dir,mode="yaml")
+        zip_file.seek(0)
+        response = HttpResponse(content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename={0}.zip'.format(
+                                                course_name
+                                                )
+        response.write(zip_file.read())
+        return response
+    else:
+        raise Http404("No download type by the name {}".format(mode))

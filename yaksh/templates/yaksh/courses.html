@@ -142,8 +142,14 @@
             </li>
             <br>
             <li>
-                <a href="{{URL_ROOT}}/exam/manage/courses/download_course/{{course.id}}" data-toggle="tooltip" title="Download course content for offline view" data-placement="top">
+                <a href="{{URL_ROOT}}/exam/manage/courses/download_course/offline/{{course.id}}" data-toggle="tooltip" title="Download course content for offline view" data-placement="top">
                     Download course offline
+                </a>
+            </li>
+            <br>
+            <li>
+                <a href="{{URL_ROOT}}/exam/manage/courses/download_course/yaml/{{course.id}}" data-toggle="tooltip" title="Download entire course in yaml" data-placement="top">
+                    Download course YAML
                 </a>
             </li>
         </ul>

@@ -209,6 +209,28 @@ def write_templates_to_zip(zipfile, template_path, data, filename, filepath):
     zipfile.writestr(os.sep.join((filepath, "{0}.html".format(filename))),
                      str(rendered_template))
 
+def write_yaml_to_zip(zipfile, yaml_path, data, filepath):
+    """ Write template files to zip
+
+        Parameters
+        ----------
+
+        zipfile : Zipfile object
+            zip file in which the yaml files need to be added
+
+        yaml_path : str
+            Path from which the yaml file will be loaded
+
+        data: str
+            Actual Yaml data
+
+        filepath: str
+            File path in zip where the Yaml will be added
+    """
+    yaml_data = dict_to_yaml(data)
+    zipfile.writestr(os.sep.join((filepath, "{0}.yaml".format(filepath))),
+                     yaml_data)
+
 
 def render_template(template_path, data=None):
     with open(template_path) as f:
@@ -712,19 +734,26 @@ class LearningModule(models.Model):
             new_module.learning_unit.add(new_unit)
         return new_module
 
-    def _add_module_to_zip(self, course, zip_file, path):
+    def _add_module_to_zip(self, course, zip_file, path, mode="offline"):
         module_name = self.name.replace(" ", "_")
         course_name = course.name.replace(" ", "_")
         folder_name = os.sep.join((course_name, module_name))
         lessons = self.get_lesson_units()
         for lesson in lessons:
             lesson._add_lesson_to_zip(self, course, zip_file, path)
-        module_file_path = os.sep.join((
-            path, "templates", "yaksh", "module.html"
-            ))
-        module_data = {"course": course, "module": self, "lessons": lessons}
-        write_templates_to_zip(zip_file, module_file_path, module_data,
-                               module_name, folder_name)
+        if mode == "offline":
+            module_file_path = os.sep.join((path, "templates",
+                                            "yaksh", "module.html"
+                                            ))
+            module_data = {"course": course, "module": self,
+                           "lessons": lessons
+                           }
+            write_templates_to_zip(zip_file, module_file_path, module_data,
+                                   module_name, folder_name)
+        elif mode == "yaml":
+            module_data = model_to_dict(self, exclude=["learning_unit"])
+            write_yaml_to_zip(zip_file, path, module_data,folder_name)
+
 
     def __str__(self):
         return self.name
@@ -981,19 +1010,35 @@ class Course(models.Model):
     def is_student(self, user):
         return user in self.students.all()
 
-    def create_zip(self, path, static_files):
+    def create_zip(self, path, mode="offline", static_files=None):
         zip_file_name = string_io()
         with zipfile.ZipFile(zip_file_name, "a") as zip_file:
             course_name = self.name.replace(" ", "_")
             modules = self.get_learning_modules()
-            file_path = os.sep.join((path, "templates", "yaksh", "index.html"))
-            write_static_files_to_zip(zip_file, course_name, path,
-                                      static_files)
-            course_data = {"course": self, "modules": modules}
-            write_templates_to_zip(zip_file, file_path, course_data,
-                                   "index", course_name)
+            if mode == "offline" and static_files:
+                file_path = os.sep.join((path, "templates",
+                                         "yaksh", "index.html"
+                                         ))
+                write_static_files_to_zip(zip_file, course_name, path,
+                                          static_files)
+                course_data = {"course": self, "modules": modules}
+                write_templates_to_zip(zip_file, file_path, course_data,
+                                       "index", course_name)
+            elif mode == "yaml":
+                course_data = model_to_dict(self,
+                                            exclude=["creator", "students",
+                                                     "requests", "rejected",
+                                                     "created_on", "teachers",
+                                                     "is_trial", "hidden",
+                                                     "instructions",
+                                                     "grading_system",
+                                                     ]
+                                            )
+                write_yaml_to_zip(zip_file, path, course_data,
+                                  course_name
+                                  )
             for module in modules:
-                module._add_module_to_zip(self, zip_file, path)
+                module._add_module_to_zip(self, zip_file, path, mode)
         return zip_file_name
 
     def has_lessons(self):

@@ -207,7 +207,7 @@ urlpatterns = [
         views.preview_questionpaper, name="preview_questionpaper"),
     url(r'^manage/get_user_status/(?P<course_id>\d+)/(?P<student_id>\d+)/$',
         views.get_user_data, name="get_user_data"),
-    url(r'^manage/courses/download_course/(?P<course_id>\d+)/$',
+    url(r'^manage/courses/download_course/(?P<mode>offline|yaml)/(?P<course_id>\d+)/$',
         views.download_course, name="download_course"),
     url(r'^download_course/(?P<course_id>\d+)/$',
         views.download_course, name="download_course"),
